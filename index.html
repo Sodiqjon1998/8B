@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O'quvchilar Baholash Tizimi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            color: #312e81;
+            font-size: 1.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .toolbar {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .toolbar-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-info {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: #ef4444;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .btn-danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 28rem;
+            width: 100%;
+        }
+
+        .modal-content h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-secondary {
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #9ca3af;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: #4f46e5;
+            color: white;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: #4f46e5;
+            z-index: 10;
+        }
+
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            background: inherit;
+            z-index: 5;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            position: sticky;
+            left: 3rem;
+            background: inherit;
+            z-index: 5;
+            min-width: 180px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        tbody tr:nth-child(odd) {
+            background: white;
+        }
+
+        .grade-cell {
+            text-align: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            min-height: 2rem;
+            border-radius: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .grade-cell:hover {
+            background: #eef2ff;
+        }
+
+        .grade-input {
+            width: 4rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #818cf8;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .edit-buttons {
+            display: inline-flex;
+            gap: 0.25rem;
+            margin-left: 0.25rem;
+        }
+
+        .edit-buttons button {
+            padding: 0.25rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 0.25rem;
+        }
+
+        .btn-save {
+            color: #16a34a;
+        }
+
+        .btn-cancel {
+            color: #ef4444;
+        }
+
+        .student-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .subject-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .bg-yellow {
+            background: #fef3c7 !important;
+        }
+
+        .bg-green {
+            background: #d1fae5 !important;
+        }
+
+        .bg-orange {
+            background: #fed7aa !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>O'quvchilar Baholash Tizimi</h1>
+            <p>ANDIJAN RISING SCHOOL</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-buttons">
+                <button class="btn btn-primary" onclick="openAddStudentModal()">
+                    <span>➕</span> O'quvchi
+                </button>
+                <button class="btn btn-success" onclick="openAddSubjectModal()">
+                    <span>➕</span> Fan
+                </button>
+                <button class="btn btn-info" onclick="exportToExcel()">
+                    <span>📥</span> Excel
+                </button>
+                <button class="btn btn-danger" onclick="clearStorage()">
+                    <span>🗑️</span> Tozalash
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="gradesTable">
+                <thead>
+                    <tr>
+                        <th>T/r</th>
+                        <th>O'quvchilar</th>
+                        <th class="bg-yellow">Bali</th>
+                        <!-- <th class="bg-green">O'rtacha</th> -->
+                        <th class="bg-orange">O'rin</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                O'quvchilar qo'shilmagan
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Bahoni o'zgartirish uchun katakchani bosing</p>
+        </div>
+    </div>
+
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <h2>Yangi o'quvchi</h2>
+            <div id="studentError" class="error-message"></div>
+            <input type="text" id="studentNameInput" class="form-input" placeholder="O'quvchi ismi">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="addStudent()">Qo'shish</button>
+                <button class="btn btn-secondary" onclick="closeAddStudentModal()">Bekor qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addSubjectModal" class="modal">
+        <div class="modal-content">
+            <h2>Yangi fan</h2>
+            <div id="subjectError" class="error-message"></div>
+            <input type="text" id="subjectNameInput" class="form-input" placeholder="Fan nomi">
+            <div class="modal-buttons">
+                <button class="btn btn-success" onclick="addSubject()">Qo'shish</button>
+                <button class="btn btn-secondary" onclick="closeAddSubjectModal()">Bekor qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ma'lumotlar
+        let students = [];
+        let subjects = [];
+        let grades = {};
+        let editingCell = null;
+
+        // localStorage mavjudligini tekshirish
+        function checkStorageAvailability() {
+            try {
+                const test = 'test';
+                localStorage.setItem('test', test);
+                localStorage.removeItem('test');
+                return true;
+            } catch (e) {
+                console.error('localStorage is not available or quota exceeded:', e);
+                alert('localStorage ishlamayapti yoki hajm chegarasi oshdi!');
+                return false;
+            }
+        }
+
+        // localStorage dan yuklash
+        function loadFromStorage() {
+            if (!checkStorageAvailability()) {
+                students = [];
+                subjects = [];
+                grades = {};
+                return;
+            }
+
+            try {
+                const savedStudents = localStorage.getItem('students');
+                if (savedStudents) {
+                    const parsedStudents = JSON.parse(savedStudents);
+                    if (Array.isArray(parsedStudents)) {
+                        students = parsedStudents;
+                    } else {
+                        console.warn('Invalid students data format');
+                        students = [];
+                    }
+                }
+
+                const savedSubjects = localStorage.getItem('subjects');
+                if (savedSubjects) {
+                    const parsedSubjects = JSON.parse(savedSubjects);
+                    if (Array.isArray(parsedSubjects)) {
+                        subjects = parsedSubjects;
+                    } else {
+                        console.warn('Invalid subjects data format');
+                        subjects = [];
+                    }
+                }
+
+                const savedGrades = localStorage.getItem('grades');
+                if (savedGrades) {
+                    const parsedGrades = JSON.parse(savedGrades);
+                    if (typeof parsedGrades === 'object' && parsedGrades !== null) {
+                        grades = parsedGrades;
+                    } else {
+                        console.warn('Invalid grades data format');
+                        grades = {};
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                alert('Ma\'lumotlarni yuklashda xatolik yuz berdi!');
+                students = [];
+                subjects = [];
+                grades = {};
+            }
+        }
+
+        // localStorage ga saqlash
+        function saveToStorage() {
+            if (!checkStorageAvailability()) return;
+
+            try {
+                localStorage.setItem('students', JSON.stringify(students));
+                localStorage.setItem('subjects', JSON.stringify(subjects));
+                localStorage.setItem('grades', JSON.stringify(grades));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                alert('Ma\'lumotlarni saqlashda xatolik yuz berdi!');
+            }
+        }
+
+        // localStorage ni tozalash
+        function clearStorage() {
+            if (confirm('Barcha ma\'lumotlarni o\'chirishni xohlaysizmi?')) {
+                localStorage.removeItem('students');
+                localStorage.removeItem('subjects');
+                localStorage.removeItem('grades');
+                students = [];
+                subjects = [];
+                grades = {};
+                renderTable();
+                alert('Ma\'lumotlar muvaffaqiyatli o\'chirildi!');
+            }
+        }
+
+        // O'rtacha va umumiy ball hisoblash
+        function calculateStats(studentId) {
+            let total = 0;
+            let count = 0;
+
+            subjects.forEach(subject => {
+                const grade = grades[`${studentId}-${subject.id}`];
+                if (grade && !isNaN(parseFloat(grade))) {
+                    total += parseFloat(grade);
+                    count++;
+                }
+            });
+
+            return {
+                total: count > 0 ? total.toFixed(1) : '0',
+            };
+        }
+
+        // O'rinlarni hisoblash
+        function getRankings() {
+            const studentsWithScores = students.map(student => {
+                const stats = calculateStats(student.id);
+                return {
+                    id: student.id,
+                    total: parseFloat(stats.total)
+                };
+            });
+
+            studentsWithScores.sort((a, b) => b.total - a.total);
+
+            const rankings = {};
+            studentsWithScores.forEach((student, index) => {
+                rankings[student.id] = index + 1;
+            });
+
+            return rankings;
+        }
+
+        // Jadvalni render qilish
+        function renderTable() {
+            const thead = document.querySelector('#gradesTable thead tr');
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            // Thead ni yangilash
+            thead.innerHTML = `
+                <th>T/r</th>
+                <th>O'quvchilar</th>
+                ${subjects.map(subject => `
+                    <th class="text-center">
+                        <div class="subject-header">
+                            <span>${subject.name}</span>
+                            <button class="btn-danger" onclick="deleteSubject(${subject.id})" title="Fanni o'chirish">
+                                🗑️
+                            </button>
+                        </div>
+                    </th>
+                `).join('')}
+                <th class="bg-dark text-center">Bali</th>
+                <th class="bg-dark text-center">O'rin</th>
+            `;
+
+            if (students.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            const rankings = getRankings();
+            const sortedStudents = [...students].sort((a, b) => rankings[a.id] - rankings[b.id]);
+
+            tbody.innerHTML = sortedStudents.map((student, index) => {
+                const stats = calculateStats(student.id);
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>
+                            <div class="student-name">
+                                <span>${student.name}</span>
+                                <button class="btn-danger" onclick="deleteStudent(${student.id})" title="O'quvchini o'chirish">
+                                    🗑️
+                                </button>
+                            </div>
+                        </td>
+                        ${subjects.map(subject => {
+                            const cellKey = `${student.id}-${subject.id}`;
+                            const grade = grades[cellKey] || '-';
+                            return `
+                                <td class="text-center">
+                                    <div class="grade-cell" onclick="startEdit(${student.id}, ${subject.id})" id="cell-${cellKey}">
+                                        ${grade}
+                                    </div>
+                                </td>
+                            `;
+                        }).join('')}
+                        <td class="bg-yellow text-center font-bold">${stats.total}</td>
+                        
+                        <td class="bg-orange text-center font-bold">${rankings[student.id]}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // O'quvchi qo'shish modal
+        function openAddStudentModal() {
+            document.getElementById('addStudentModal').classList.add('active');
+            document.getElementById('studentNameInput').value = '';
+            document.getElementById('studentError').style.display = 'none';
+            document.getElementById('studentNameInput').focus();
+        }
+
+        function closeAddStudentModal() {
+            document.getElementById('addStudentModal').classList.remove('active');
+        }
+
+        function addStudent() {
+            const input = document.getElementById('studentNameInput');
+            const errorDiv = document.getElementById('studentError');
+            const name = input.value.trim();
+
+            if (name === '') {
+                errorDiv.textContent = 'O\'quvchi ismini kiriting!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (students.some(student => student.name.toLowerCase() === name.toLowerCase())) {
+                errorDiv.textContent = 'Bu ismli o\'quvchi allaqachon mavjud!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            students.push({ id: Date.now(), name: name });
+            saveToStorage();
+            renderTable();
+            closeAddStudentModal();
+        }
+
+        // Fan qo'shish modal
+        function openAddSubjectModal() {
+            document.getElementById('addSubjectModal').classList.add('active');
+            document.getElementById('subjectNameInput').value = '';
+            document.getElementById('subjectError').style.display = 'none';
+            document.getElementById('subjectNameInput').focus();
+        }
+
+        function closeAddSubjectModal() {
+            document.getElementById('addSubjectModal').classList.remove('active');
+        }
+
+        function addSubject() {
+            const input = document.getElementById('subjectNameInput');
+            const errorDiv = document.getElementById('subjectError');
+            const name = input.value.trim();
+
+            if (name === '') {
+                errorDiv.textContent = 'Fan nomini kiriting!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (subjects.some(subject => subject.name.toLowerCase() === name.toLowerCase())) {
+                errorDiv.textContent = 'Bu nomli fan allaqachon mavjud!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            subjects.push({ id: Date.now(), name: name });
+            saveToStorage();
+            renderTable();
+            closeAddSubjectModal();
+        }
+
+        // O'quvchi o'chirish
+        function deleteStudent(studentId) {
+            if (confirm('Rostdan ham bu o\'quvchini o\'chirmoqchimisiz?')) {
+                students = students.filter(s => s.id !== studentId);
+                Object.keys(grades).forEach(key => {
+                    if (key.startsWith(`${studentId}-`)) {
+                        delete grades[key];
+                    }
+                });
+                saveToStorage();
+                renderTable();
+            }
+        }
+
+        // Fan o'chirish
+        function deleteSubject(subjectId) {
+            if (confirm('Rostdan ham bu fanni o\'chirmoqchimisiz?')) {
+                subjects = subjects.filter(s => s.id !== subjectId);
+                Object.keys(grades).forEach(key => {
+                    if (key.endsWith(`-${subjectId}`)) {
+                        delete grades[key];
+                    }
+                });
+                saveToStorage();
+                renderTable();
+            }
+        }
+
+        // Bahoni tahrirlash
+        function startEdit(studentId, subjectId) {
+            if (editingCell) {
+                cancelEdit();
+            }
+
+            const cellKey = `${studentId}-${subjectId}`;
+            editingCell = cellKey;
+            const cell = document.getElementById(`cell-${cellKey}`);
+            const currentGrade = grades[cellKey] || '';
+
+            cell.innerHTML = `
+                <input type="text" class="grade-input" id="edit-input" value="${currentGrade}" />
+                <div class="edit-buttons">
+                    <button class="btn-save" onclick="saveGrade()">✓</button>
+                    <button class="btn-cancel" onclick="cancelEdit()">✕</button>
+                </div>
+            `;
+
+            const input = document.getElementById('edit-input');
+            input.focus();
+            input.select();
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') saveGrade();
+                if (e.key === 'Escape') cancelEdit();
+            });
+        }
+
+        function saveGrade() {
+            if (!editingCell) return;
+
+            const input = document.getElementById('edit-input');
+            const value = input.value.trim();
+
+            if (value !== '') {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+                    alert('Iltimos, 0 dan 100 gacha bo\'lgan raqam kiriting!');
+                    return;
+                }
+                grades[editingCell] = numValue.toString();
+            } else {
+                delete grades[editingCell];
+            }
+
+            editingCell = null;
+            saveToStorage();
+            renderTable();
+        }
+
+        function cancelEdit() {
+            editingCell = null;
+            renderTable();
+        }
+
+        // Excel export
+        function exportToExcel() {
+            let csv = 'T/r,O\'quvchilar,';
+            csv += subjects.map(s => s.name).join(',');
+            csv += ',Umumiy,O\'rin\n';
+
+            const rankings = getRankings();
+            const sortedStudents = [...students].sort((a, b) => rankings[a.id] - rankings[b.id]);
+
+            sortedStudents.forEach((student, index) => {
+                const stats = calculateStats(student.id);
+                let row = `${index + 1},"${student.name}",`;
+
+                subjects.forEach(subject => {
+                    const grade = grades[`${student.id}-${subject.id}`] || '';
+                    row += `"${grade}",`;
+                });
+
+                // row += `${stats.total},${stats.average},${rankings[student.id]}`;
+                // csv += row + '\n';
+            });
+
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', '8-B baholar_' + new Date().toLocaleDateString() + '.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Enter tugmasi bilan qo'shish
+        document.getElementById('studentNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addStudent();
+        });
+
+        document.getElementById('subjectNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addSubject();
+        });
+
+        // Modal tashqarisini bosish
+        document.getElementById('addStudentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addStudentModal') closeAddStudentModal();
+        });
+
+        document.getElementById('addSubjectModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addSubjectModal') closeAddSubjectModal();
+        });
+
+        // Dastlabki yuklash
+        loadFromStorage();
+        renderTable();
+    </script>
+</body>
+</html>
